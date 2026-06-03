@@ -560,6 +560,8 @@ class MmuSyncFeedbackManager:
             self._sync_refill_starvation_events += 1
             if self._sync_refill_starvation_events >= self.sync_feedback_refill_events:
                 self._sync_refill_starvation_events = 0
+                if sensed_state <= self.SF_STATE_TENSION:
+                    return sensed_state
                 now = self.mmu.reactor.monotonic()
                 if (now - self._sync_refill_last_time) >= self.sync_feedback_refill_debounce:
                     self._sync_refill_last_time = now

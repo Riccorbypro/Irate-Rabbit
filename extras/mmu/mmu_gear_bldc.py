@@ -821,6 +821,12 @@ class MmuGearBldc:
         end_v = move.end_v * axis_r
         cruise_print_time = self._floored_print_time(print_time + move.accel_t)
 
+        if source == 'process_move_push':
+            self.motion_queue = [
+                (descriptor, queued_source) for descriptor, queued_source in self.motion_queue
+                if queued_source != 'process_move_push'
+            ]
+
         if source == 'process_move_push' and move.accel_t <= EPSILON and move.decel_t <= EPSILON and move.cruise_t > EPSILON:
             if self.last_process_move_cruise_time is not None and self.last_process_move_cruise_speed is not None:
                 if cruise_print_time - self.last_process_move_cruise_time < self.PROCESS_MOVE_MIN_INTERVAL_S and abs(cruise_v - self.last_process_move_cruise_speed) <= self.PROCESS_MOVE_SPEED_EPS:

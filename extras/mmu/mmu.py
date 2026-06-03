@@ -8109,8 +8109,6 @@ class Mmu:
         if self.is_enabled:
             self._fix_started_state() # Get out of 'started' state before transistion to cancelled
             self.log_debug("MMU_CANCEL_PRINT wrapper called")
-            # Drop sync immediately so cancel park/retract moves cannot feed stale BLDC sync queues.
-            self.sync_gear_to_extruder(False, force_grip=True)
             self._clear_mmu_error_dialog()
             self._save_toolhead_position_and_park("cancel")
             self.wrap_gcode_command("__CANCEL_PRINT", exception=None)

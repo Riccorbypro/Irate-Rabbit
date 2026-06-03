@@ -433,7 +433,7 @@ class MmuGearBldc:
     BRAKE_MIN_TIME_S = 0.03
     BRAKE_MIN_ACTIVE_PWM = 0.08
     LOG_INTERVAL = 0.5
-    MIN_SAFE_SCHEDULE_MARGIN = 0.10
+    MIN_SAFE_SCHEDULE_MARGIN = 0.15
     PROCESS_MOVE_MIN_INTERVAL_S = 0.05
     PROCESS_MOVE_SPEED_EPS = 0.10
     PROCESS_MOVE_MIN_CRUISE_T_S = 0.025
@@ -829,6 +829,17 @@ class MmuGearBldc:
                     return
             self.last_process_move_cruise_time = cruise_print_time
             self.last_process_move_cruise_speed = cruise_v
+
+        # Keep only the freshest process_move descriptors in a short lookback window.
+        # This avoids queue spikes when Klipper emits dense process_move callbacks.
+        if source == 'process_move_push' and self.motion_queue:
+            coalesce_cutoff = cruise_print_time - self.PROCESS_MOVE_COALESCE_WINDOW_S
+            self.motion_queue = [
+                (descriptor, queued_source) for descriptor, queued_source in self.motion_queue
+                if queued_source != 'process_move_push'
+                or descriptor.print_time is None
+                or descriptor.print_time >= coalesce_cutoff
+            ]
 
         if move.accel_t > EPSILON:
             self.motion_queue.append((MotionTrapzoid(

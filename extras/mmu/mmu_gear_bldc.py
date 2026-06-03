@@ -901,15 +901,6 @@ class MmuGearBldc:
             return self.reactor.NEVER
         if self.motion_tach_target_delta is not None:
             return eventtime + self.motion_sample_time
-        # Completed descriptors mark print_time=None after advance(); skip those here.
-        valid_motion_queue = [
-            (descriptor, source) for descriptor, source in self.motion_queue
-            if descriptor.print_time is not None
-        ]
-        if len(valid_motion_queue) != len(self.motion_queue):
-            self.motion_queue = valid_motion_queue
-        if not self.motion_queue:
-            return self.reactor.NEVER
         next_print_time = min(descriptor.print_time for descriptor, _ in self.motion_queue)
         delta_to_deadline = (next_print_time - self.motion_sample_time) - current_print_time
         if delta_to_deadline <= EPSILON:

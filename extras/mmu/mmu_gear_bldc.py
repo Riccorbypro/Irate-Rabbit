@@ -933,9 +933,11 @@ class MmuGearBldc:
         if self.motion_state == self.MOTION_STATE_MOVING and self._check_tach_position_complete():
             return self.reactor.NEVER
 
+        # Allow a small past-time grace window so timer jitter doesn't drop descriptors before first dispatch.
+        stale_cutoff = current_print_time - self.motion_sample_time
         self.motion_queue = [
             (descriptor, source) for descriptor, source in self.motion_queue
-            if descriptor.print_time is not None and descriptor.print_time >= current_print_time - EPSILON
+            if descriptor.print_time is not None and descriptor.print_time >= stale_cutoff
         ]
 
         if self.motion_queue:

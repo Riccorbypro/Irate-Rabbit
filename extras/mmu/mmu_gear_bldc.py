@@ -1064,8 +1064,6 @@ class MmuGearBldc:
             self.reactor.update_timer(self.motion_timer, self.reactor.NEVER)
         self.motion_queue = []
         self.motion_tach_start_count = self.motion_tach_target_delta = None
-        self.last_process_move_cruise_time = None
-        self.last_process_move_cruise_speed = None
         self.commanded_rpm = 0.
         self.commanded_source = source
         self.commanded_linear_speed = 0.
@@ -1211,8 +1209,9 @@ class MmuGearBldc:
         self.last_sync_speed_log_eventtime = self.last_sync_sample_log_eventtime = None
         if self.active_sync_monitor is not None:
             self.active_sync_monitor.deactivate(self)
-        if self.motion_queue:
-            self.mmu.log_stepper("BLDC_SYNC: dropping %d queued motion descriptors on unsync (unit=%s)" % (len(self.motion_queue), self.section_name))
+        if self.motion_state == self.MOTION_STATE_MOVING and self.motion_queue:
+            self.mmu.log_stepper("BLDC_SYNC: draining queued motion before stop (unit=%s)" % self.section_name)
+            return
         self.stop()
 
     def _handle_shutdown(self):

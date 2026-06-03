@@ -230,6 +230,7 @@ class SyncControllerConfig(object):
 
     # Optional two-level for P type sensors
     use_twolevel_for_type_p = None   # True/False to force option for type-P sensors
+    twolevel_wait_for_tension = False # On neutral reset, start on tension-seeking side before feeding to compression
     p_twolevel_threshold = 0.80      # P extreme if z>=+thr or z<=-thr
     p_twolevel_hysteresis = 0.2      # shrink threshold by this when exiting a twolevel extreme
 
@@ -1122,7 +1123,7 @@ class SyncController(object):
             elif pol0 < 0:
                 self._os_target_level = "low"
             else:
-                self._os_target_level = "low"  # neutral start; will flip on first extreme
+                self._os_target_level = "high" if (self.cfg.sensor_type == "D" and self.cfg.twolevel_wait_for_tension) else "low"
             self._os_since_flip_mm = 0.0
             self._twolevel_tension_pulse_remaining_mm = 0.0
 

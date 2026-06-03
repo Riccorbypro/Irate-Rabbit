@@ -6003,6 +6003,9 @@ class Mmu:
             self._track_gate_statistics('unloads', self.gate_selected)
 
             if not extruder_only:
+                # Keep BLDC process_move callbacks quiesced during final action transition.
+                if self.has_bldc_gear(self.gate_selected):
+                    self.sync_gear_to_extruder(False)
                 self._set_action(current_action)
 
             if macros_and_track:

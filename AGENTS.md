@@ -21,7 +21,7 @@ configuration, or documentation changes.
 - Start from the current printer config under `printer_data/config/` when it is
   available.
 - Include `variables.cfg` in any calibration or behavior diagnosis.
-- Use `rg` for repo search.
+- Use `codegraph` for code search. Make sure to run `codegraph sync` when changes have been made to the worktree.
 - Preserve user-provided logs and configs. Do not clean or regenerate them
   unless explicitly asked.
 - Do not revert unrelated worktree changes.

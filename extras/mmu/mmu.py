@@ -3844,7 +3844,6 @@ class Mmu:
     def _initialize_encoder(self, dwell=False):
         if self._encoder_dwell(dwell):
             self.encoder_sensor.reset_counts()
-            self.sync_feedback_manager.note_encoder_reset()
 
     def _get_encoder_dead_space(self):
         if self.has_encoder() and self.gate_homing_endstop in [self.SENSOR_GATE, self.SENSOR_GEAR_PREFIX]:

@@ -698,10 +698,6 @@ class MmuSyncFeedbackManager:
             buffer_max_range_mm = self.sync_feedback_buffer_maxrange,
             sensor_type = self._get_sensor_type(),
             use_twolevel_for_type_p = self.sync_feedback_force_twolevel,
-            rd_twolevel_speed_multiplier = self._get_twolevel_speed_multiplier(),
-            rd_twolevel_boost_multiplier = self._get_twolevel_boost_multiplier(),
-            twolevel_tension_pulse_mm = self.sync_feedback_tension_pulse_mm,
-            twolevel_tension_pulse_strength = self.sync_feedback_tension_pulse_strength,
             rd_start = rd_start,
             flowguard_relief_mm = self.flowguard_max_relief,
         )

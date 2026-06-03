@@ -56,7 +56,6 @@ class MmuSyncFeedbackManager:
         self.sync_feedback_speed_multiplier  = self.mmu.config.getfloat('sync_feedback_speed_multiplier', 5, minval=1, maxval=50)
         self.sync_feedback_boost_multiplier  = self.mmu.config.getfloat('sync_feedback_boost_multiplier', 5, minval=1, maxval=50)
         self.sync_feedback_extrude_threshold = self.mmu.config.getfloat('sync_feedback_extrude_threshold', 5, above=1.)
-        self.sync_feedback_bldc_extrude_threshold = self.mmu.config.getfloat('sync_feedback_bldc_extrude_threshold', 1.0, above=0.) # Not exposed
         self.sync_feedback_debug_log         = self.mmu.config.getint('sync_feedback_debug_log', 0)
         self.sync_feedback_force_twolevel    = self.mmu.config.getint('sync_feedback_force_twolevel', 0) # Not exposed
         self.sync_feedback_tension_pulse_mm = self.mmu.config.getfloat('sync_feedback_tension_pulse_mm', 8.0 if self.mmu.has_bldc_gear() else 0.0, minval=0.)
@@ -461,10 +460,7 @@ class MmuSyncFeedbackManager:
         self._reset_controller(eventtime)
 
         # Turn on extruder movement events
-        extrude_threshold = self.sync_feedback_extrude_threshold
-        if self.mmu.has_bldc_gear(self.mmu.gate_selected):
-            extrude_threshold = min(extrude_threshold, self.sync_feedback_bldc_extrude_threshold)
-        self.extruder_monitor.register_callback(self._handle_extruder_movement, extrude_threshold)
+        self.extruder_monitor.register_callback(self._handle_extruder_movement, self.sync_feedback_extrude_threshold)
 
 
     def _handle_mmu_unsynced(self, eventtime=None):

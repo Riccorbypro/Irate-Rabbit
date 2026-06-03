@@ -15,7 +15,6 @@ RAW_ANGLE_HALF_TURN = RAW_ANGLE_TICKS / 2.0
 
 class MmuEncoderMt6826s:
     CHECK_MOVEMENT_TIMEOUT = 0.250
-    POLL_ERROR_BACKOFF = 0.050
 
     RUNOUT_DISABLED = 0
     RUNOUT_STATIC = 1
@@ -181,15 +180,12 @@ class MmuEncoderMt6826s:
         return delta
 
     def _poll_angle_event(self, eventtime):
-        if not self._enabled:
-            return self.reactor.NEVER
         try:
             self._poll_angle_once(eventtime)
         except Exception as e:
             self._poll_errors += 1
             if self._poll_errors <= 5:
                 self._log_encoder("MT6826S encoder '%s' polling read failed: %s" % (self.name, str(e)))
-            return self.reactor.monotonic() + max(self.poll_interval, self.POLL_ERROR_BACKOFF)
         return self.reactor.monotonic() + self.poll_interval
 
     def _log_poll_sample(self, raw_angle, delta):
@@ -382,13 +378,9 @@ class MmuEncoderMt6826s:
     def enable(self):
         self._reset_filament_runout_params()
         self._enabled = True
-        if self._poll_timer is not None:
-            self.reactor.update_timer(self._poll_timer, self.reactor.NOW)
 
     def disable(self):
         self._enabled = False
-        if self._poll_timer is not None:
-            self.reactor.update_timer(self._poll_timer, self.reactor.NEVER)
 
     def is_enabled(self):
         return self._enabled
@@ -425,10 +417,10 @@ class MmuEncoderMt6826s:
         self._movement_counts = abs(self._counts)
 
     def reset_counts(self):
-        # Avoid synchronous SPI read here; next scheduled poll will re-seed angle baseline.
-        self._last_angle = None
-        self._last_raw_angle = None
-        self._last_time = None
+        try:
+            self._poll_angle_once(self.reactor.monotonic())
+        except Exception as e:
+            self._log_encoder("MT6826S encoder '%s' could not seed angle during reset: %s" % (self.name, str(e)))
         self._counts = 0.
         self._movement_counts = 0.
         self._movement = False

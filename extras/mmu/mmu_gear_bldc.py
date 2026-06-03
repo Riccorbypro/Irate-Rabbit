@@ -478,7 +478,7 @@ class MmuGearBldc:
         self.brake_pwm = config.getfloat('brake_pwm', 1., minval=0., maxval=1.)
         self.brake_max_time = config.getfloat('brake_max_time', 0.25, minval=0.)
         # Keep enough scheduling headroom on the MMU MCU even with dense process_move traffic.
-        configured_schedule_margin = config.getfloat('schedule_margin', 0.10, minval=0.)
+        configured_schedule_margin = config.getfloat('schedule_margin', self.MIN_SAFE_SCHEDULE_MARGIN, minval=0.)
         self.schedule_margin = max(configured_schedule_margin, self.MIN_SAFE_SCHEDULE_MARGIN)
         if self.schedule_margin > configured_schedule_margin:
             self.mmu.log_warning("BLDC: Raising schedule_margin to safe minimum %.2fs (configured lower)" % self.MIN_SAFE_SCHEDULE_MARGIN)

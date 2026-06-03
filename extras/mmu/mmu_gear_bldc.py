@@ -28,6 +28,8 @@ class MotionDescriptor:
 
     def advance(self, print_time):
         """Called after dispatch. Update state and return wake delay (seconds) or None."""
+        # Base descriptors are one-shot setpoint updates.
+        self.print_time = None
         return None
 
 class MotionStop(MotionDescriptor):

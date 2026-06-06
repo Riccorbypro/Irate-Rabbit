@@ -1191,9 +1191,16 @@ class MmuGearBldc:
         self.last_sync_speed_log_eventtime = self.last_sync_sample_log_eventtime = None
         if self.active_sync_monitor is not None:
             self.active_sync_monitor.deactivate(self)
-        if self.motion_state == self.MOTION_STATE_MOVING and self.motion_queue:
-            self.mmu.log_stepper("BLDC_SYNC: draining queued motion before stop (unit=%s)" % self.section_name)
-            return
+        if self.motion_queue:
+            sync_sources = ('process_move_push', 'sync_feedback')
+            original_len = len(self.motion_queue)
+            self.motion_queue = [
+                (descriptor, source) for descriptor, source in self.motion_queue
+                if source not in sync_sources
+            ]
+            purged = original_len - len(self.motion_queue)
+            if purged > 0:
+                self.mmu.log_stepper("BLDC_SYNC: purged %d sync-origin queued descriptors before stop (unit=%s)" % (purged, self.section_name))
         self.stop()
 
     def _handle_shutdown(self):

@@ -8106,6 +8106,7 @@ class Mmu:
     def cmd_MMU_CANCEL_PRINT(self, gcmd):
         self.log_to_file(gcmd.get_commandline())
         if self.is_enabled:
+            self.sync_gear_to_extruder(False, force_grip=True)
             self._fix_started_state() # Get out of 'started' state before transistion to cancelled
             self.log_debug("MMU_CANCEL_PRINT wrapper called")
             self._clear_mmu_error_dialog()
